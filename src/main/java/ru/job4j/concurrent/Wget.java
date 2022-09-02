@@ -20,9 +20,18 @@ public class Wget implements Runnable {
              FileOutputStream fileOutputStream = new FileOutputStream("pom_tmp.xml")) {
             byte[] dataBuffer = new byte[1024];
             int bytesRead;
+            int downloadData = 0;
+            var timeBeforeDownload = System.currentTimeMillis();
             while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
+                var timeAfterDownload = System.currentTimeMillis();
+                var timeInterval = timeAfterDownload - timeBeforeDownload;
+                downloadData += bytesRead;
+                if (downloadData > speed && timeInterval < 1000) {
+                    Thread.sleep(1000 - timeInterval);
+                    downloadData = 0;
+                }
                 fileOutputStream.write(dataBuffer, 0, bytesRead);
-                Thread.sleep(1000);
+                timeBeforeDownload = System.currentTimeMillis();
             }
         } catch (IOException e) {
             e.printStackTrace();
