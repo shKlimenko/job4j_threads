@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.regex.Pattern;
 
 public class Wget implements Runnable {
     private final String url;
@@ -12,6 +13,31 @@ public class Wget implements Runnable {
     public Wget(String url, int speed) {
         this.url = url;
         this.speed = speed;
+    }
+
+    public static void main(String[] args) throws InterruptedException {
+        checkArgs(args);
+        String url = args[0];
+        int speed = Integer.parseInt(args[1]);
+        Thread wget = new Thread(new Wget(url, speed));
+        wget.start();
+        wget.join();
+    }
+
+    private static void checkArgs(String[] args) {
+        if (args.length != 2) {
+            throw new IllegalArgumentException("Missing or extra arguments. "
+                    + "Arguments template is: URL SPEED_LIMIT (byte / sec)");
+        }
+        var regex = Pattern.compile("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+        var matcher = regex.matcher(args[0]);
+        if (!matcher.find()) {
+            throw new IllegalArgumentException("URL is not valid. "
+                    + "Please use valid URL");
+        }
+        if (Integer.parseInt(args[1]) <= 0) {
+            throw new IllegalArgumentException("Speed can't be zero or negative.");
+        }
     }
 
     @Override
@@ -38,17 +64,5 @@ public class Wget implements Runnable {
         } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
-    }
-
-    public static void main(String[] args) throws InterruptedException {
-        if (args.length != 2) {
-            throw new IllegalArgumentException("Missing or extra arguments. "
-                    + "Arguments template is: URL SPEED_LIMIT");
-        }
-        String url = args[0];
-        int speed = Integer.parseInt(args[1]);
-        Thread wget = new Thread(new Wget(url, speed));
-        wget.start();
-        wget.join();
     }
 }
