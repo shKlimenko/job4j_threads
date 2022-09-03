@@ -7,6 +7,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 public class Wget implements Runnable {
+    private static final String url_pattern = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
     private final String url;
     private final int speed;
 
@@ -29,7 +30,7 @@ public class Wget implements Runnable {
             throw new IllegalArgumentException("Missing or extra arguments. "
                     + "Arguments template is: URL SPEED_LIMIT (byte / sec)");
         }
-        var regex = Pattern.compile("^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+        var regex = Pattern.compile(url_pattern);
         var matcher = regex.matcher(args[0]);
         if (!matcher.find()) {
             throw new IllegalArgumentException("URL is not valid. "
@@ -49,11 +50,13 @@ public class Wget implements Runnable {
             int downloadData = 0;
             var timeBeforeDownload = System.currentTimeMillis();
             while ((bytesRead = in.read(dataBuffer, 0, 1024)) != -1) {
-                var timeAfterDownload = System.currentTimeMillis();
-                var timeInterval = timeAfterDownload - timeBeforeDownload;
                 downloadData += bytesRead;
-                if (downloadData > speed && timeInterval < 1000) {
-                    Thread.sleep(1000 - timeInterval);
+                if (downloadData > speed) {
+                    var timeAfterDownload = System.currentTimeMillis();
+                    var timeInterval = timeAfterDownload - timeBeforeDownload;
+                    if (timeInterval < 1000){
+                        Thread.sleep(1000 - timeInterval);
+                    }
                     downloadData = 0;
                 }
                 fileOutputStream.write(dataBuffer, 0, bytesRead);
