@@ -7,7 +7,7 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 public class Wget implements Runnable {
-    private static final String URL_PATTERN = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
+    private static final String url_pattern = "^(https?|ftp|file)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]";
     private final String url;
     private final int speed;
 
@@ -30,7 +30,7 @@ public class Wget implements Runnable {
             throw new IllegalArgumentException("Missing or extra arguments. "
                     + "Arguments template is: URL SPEED_LIMIT (byte / sec)");
         }
-        var regex = Pattern.compile(URL_PATTERN);
+        var regex = Pattern.compile(url_pattern);
         var matcher = regex.matcher(args[0]);
         if (!matcher.find()) {
             throw new IllegalArgumentException("URL is not valid. "
@@ -54,7 +54,7 @@ public class Wget implements Runnable {
                 if (downloadData > speed) {
                     var timeAfterDownload = System.currentTimeMillis();
                     var timeInterval = timeAfterDownload - timeBeforeDownload;
-                    if (timeInterval < 1000) {
+                    if (timeInterval < 1000){
                         Thread.sleep(1000 - timeInterval);
                     }
                     downloadData = 0;
