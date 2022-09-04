@@ -4,6 +4,7 @@ import java.io.BufferedInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.regex.Pattern;
 
 public class Wget implements Runnable {
@@ -44,7 +45,8 @@ public class Wget implements Runnable {
     @Override
     public void run() {
         try (BufferedInputStream in = new BufferedInputStream(new URL(url).openStream());
-             FileOutputStream fileOutputStream = new FileOutputStream("pom_tmp.xml")) {
+             FileOutputStream fileOutputStream = new FileOutputStream(
+                     Paths.get(new URL(url).getPath()).getFileName().toString())) {
             byte[] dataBuffer = new byte[1024];
             int bytesRead;
             int downloadData = 0;
@@ -58,14 +60,14 @@ public class Wget implements Runnable {
                         Thread.sleep(1000 - timeInterval);
                     }
                     downloadData = 0;
+                    timeBeforeDownload = System.currentTimeMillis();
                 }
                 fileOutputStream.write(dataBuffer, 0, bytesRead);
-                timeBeforeDownload = System.currentTimeMillis();
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (InterruptedException e) {
-            throw new RuntimeException(e);
+            Thread.currentThread().interrupt();
         }
     }
 }
