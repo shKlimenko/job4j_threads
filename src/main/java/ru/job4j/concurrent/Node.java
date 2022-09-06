@@ -13,19 +13,7 @@ public final class Node<T> {
         return next;
     }
 
-    public void setNext(Node<T> next) {
-        throw new IllegalStateException(
-                String.format("Could not set Node.next to %s. Class is immutable.", next)
-        );
-    }
-
     public T getValue() {
         return value;
-    }
-
-    public void setValue(T value) {
-        throw new IllegalStateException(
-                String.format("Could not set value to %s. Class is immutable.", value)
-        );
     }
 }
