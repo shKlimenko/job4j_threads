@@ -14,22 +14,19 @@ public class AccountStorage {
 
     public boolean add(Account account) {
         synchronized (accounts) {
-            accounts.putIfAbsent(account.id(), account);
-            return Objects.equals(account, accounts.get(account.id()));
+            return accounts.putIfAbsent(account.id(), account) == null;
         }
     }
 
     public boolean update(Account account) {
         synchronized (accounts) {
-            accounts.put(account.id(), account);
-            return Objects.equals(account, accounts.get(account.id()));
+            return accounts.replace(account.id(), account) != null;
         }
     }
 
     public boolean delete(int id) {
         synchronized (accounts) {
-            accounts.remove(id);
-            return accounts.containsKey(id);
+            return accounts.remove(id) != null;
         }
     }
 
@@ -43,11 +40,12 @@ public class AccountStorage {
         synchronized (accounts) {
             boolean rsl = false;
             if (accounts.containsKey(fromId) && accounts.containsKey(toId)
-                && accounts.get(fromId).amount() >= amount && amount > 0) {
+                    && accounts.get(fromId).amount() >= amount && amount > 0) {
                 var accountFrom = accounts.get(fromId);
                 var accountTo = accounts.get(toId);
                 update(new Account(fromId, accountFrom.amount() - amount));
                 update(new Account(toId, accountTo.amount() + amount));
+                rsl = true;
             }
             return rsl;
         }
