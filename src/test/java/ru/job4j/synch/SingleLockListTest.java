@@ -2,17 +2,17 @@ package ru.job4j.synch;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.TreeSet;
 
-
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 public class SingleLockListTest {
 
     @Test
     public void add() throws InterruptedException {
-        SingleLockList<Integer> list = new SingleLockList<>();
+        SingleLockList<Integer> list = new SingleLockList<>(new ArrayList<>());
         Thread first = new Thread(() -> list.add(1));
         Thread second = new Thread(() -> list.add(2));
         first.start();
@@ -21,6 +21,6 @@ public class SingleLockListTest {
         second.join();
         Set<Integer> rsl = new TreeSet<>();
         list.iterator().forEachRemaining(rsl::add);
-        assertThat(rsl, is(Set.of(1, 2)));
+        assertThat(rsl).isEqualTo(Set.of(1, 2));
     }
 }
