@@ -10,7 +10,11 @@ import java.util.Queue;
 public class SimpleBlockingQueue<T> {
     @GuardedBy("this")
     private Queue<T> queue = new LinkedList<>();
-    private int  limit = 10;
+    private final int limit;
+
+    public SimpleBlockingQueue(int limit) {
+        this.limit = limit;
+    }
 
     public synchronized void offer(T value) {
         while (queue.size() == limit) {
